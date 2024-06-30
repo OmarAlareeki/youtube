@@ -1,18 +1,19 @@
 import React from 'react';
-import './Library.css';
-
-const Library = ({ videoHistory }) => {
+import {Link} from "react-router-dom"
+const Library = ({ videoHistory, truncateTitle }) => {
   return (
     <div className="library">
       <h2>Library</h2>
-      <ul>
-        {videoHistory.map((video, index) => (
-          <li key={index}>
-            <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-            <h3>{video.snippet.title}</h3>
-          </li>
+      <div className="video-list">
+        {videoHistory.map((video) => (
+          <div className="video-item" key={video.id.videoId}>
+            <Link to={`/video/${video.id.videoId}`}>
+              <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
+              <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
+            </Link>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

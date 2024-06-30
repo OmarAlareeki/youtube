@@ -32,7 +32,10 @@ nav ul {
 nav a {
   color: white;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 14px;
+  border: solid 1px #404248;
+  padding: 4px;
+  border-radius: 10px;
 }
 
 .user-info {
@@ -89,7 +92,7 @@ nav a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s;
-  width: 200px;
+  width: 200px; /* Fixed width for consistency */
   text-align: left;
 }
 

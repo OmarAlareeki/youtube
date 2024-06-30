@@ -10,12 +10,14 @@ import VideoDetails from './VideoDetails';
 import './App.css';
 
 const App = () => {
-  const [videos, setVideos] = useState([]);
+  const [homeVideoHistory, setHomeVideoHistory] = useState([]);
+  const [moviesVideoHistory, setMoviesVideoHistory] = useState([]);
+  const [songsVideoHistory, setSongsVideoHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [videoHistory, setVideoHistory] = useState([]);
+  const [categories, setCategories] = useState(['Sports', 'News', 'Trending', 'Education', 'Reels']);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -36,7 +38,11 @@ const App = () => {
           q: searchTerm,
         },
       });
-      setVideos(response.data.items);
+      // Assuming the search results are for the Home page, update homeVideoHistory
+      setHomeVideoHistory((prevHistory) => [...prevHistory, ...response.data.items]);
+      if (!categories.includes(searchTerm)) {
+        setCategories([...categories, searchTerm]);
+      }
     } catch (err) {
       setError('Failed to fetch videos. Please try again.');
     } finally {
@@ -52,8 +58,12 @@ const App = () => {
     }
   };
 
-  const handleVideoSelect = (video) => {
-    setVideoHistory((prevHistory) => [...prevHistory, video]);
+  const truncateTitle = (title, wordLimit) => {
+    const words = title.split(' ');
+    if (words.length > wordLimit) {
+      return words.slice(0, wordLimit).join(' ') + '...';
+    }
+    return title;
   };
 
   return (
@@ -66,6 +76,9 @@ const App = () => {
               <li><Link to="/">Home</Link></li>
               <li><Link to="/movies">Movies</Link></li>
               <li><Link to="/songs">Songs</Link></li>
+              {categories.map((category, index) => (
+                <li key={index}><Link to={`/${category.toLowerCase()}`}>{category}</Link></li>
+              ))}
               <li><Link to="/library">Library</Link></li>
             </ul>
           </nav>
@@ -91,27 +104,81 @@ const App = () => {
                 />
                 <button className="search-button" type="submit">Search</button>
               </form>
-              {loading && <p>Loading...</p>}
-              {error && <p className="error-message">{error}</p>}
               <div className="video-list">
-                {videos.map((video) => (
-                  <Link to={`/video/${video.id.videoId}`} key={video.id.videoId} onClick={() => handleVideoSelect(video)}>
-                    <div className="video-item">
-                      <h3 className="video-title">{video.snippet.title}</h3>
+                {loading && <p>Loading...</p>}
+                {error && <p className="error-message">{error}</p>}
+                {homeVideoHistory.map((video) => (
+                  <div className="video-item" key={video.id.videoId}>
+                    <Link to={`/video/${video.id.videoId}`}>
+                      <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
                       <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
           } />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/songs" element={<Songs />} />
-          <Route path="/library" element={<Library videoHistory={videoHistory} />} />
-          <Route path="/video/:id" element={<VideoDetails videos={videos} />} />
+          <Route path="/movies" element={<Movies setMoviesVideoHistory={setMoviesVideoHistory} truncateTitle={truncateTitle} />} />
+          <Route path="/songs" element={<Songs setSongsVideoHistory={setSongsVideoHistory} truncateTitle={truncateTitle} />} />
+          <Route path="/library" element={<Library videoHistory={homeVideoHistory} truncateTitle={truncateTitle} />} />
+          <Route path="/video/:videoId" element={<VideoDetails />} />
+          {categories.map((category, index) => (
+            <Route
+              key={index}
+              path={`/${category.toLowerCase()}`}
+              element={<CategoryPage category={category} truncateTitle={truncateTitle} />}
+            />
+          ))}
         </Routes>
       </div>
     </Router>
+  );
+};
+
+const CategoryPage = ({ category, truncateTitle }) => {
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+          params: {
+            part: 'snippet',
+            maxResults: 10,
+            key: process.env.REACT_APP_YOUTUBE_API_KEY,
+            q: category,
+          },
+        });
+        setVideos(response.data.items);
+      } catch (err) {
+        setError('Failed to fetch videos. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, [category]);
+
+  return (
+    <div>
+      {loading && <p>Loading...</p>}
+      {error && <p className="error-message">{error}</p>}
+      <div className="video-list">
+        {videos.map((video) => (
+          <div className="video-item" key={video.id.videoId}>
+            <Link to={`/video/${video.id.videoId}`}>
+              <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
+              <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
+            </Link>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

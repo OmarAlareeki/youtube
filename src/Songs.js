@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Songs.css';
 
-const Songs = () => {
+const Songs = ({ truncateTitle }) => {
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,8 +42,10 @@ const Songs = () => {
       <ul className="songs-list">
         {songs.map((song) => (
           <li key={song.id.videoId} className="song-item">
-            <h3 className="song-title">{song.snippet.title}</h3>
-            <img src={song.snippet.thumbnails.default.url} alt={song.snippet.title} />
+            <Link to={`/video/${song.id.videoId}`}>
+              <h3 className="song-title">{truncateTitle(song.snippet.title, 8)}</h3>
+              <img src={song.snippet.thumbnails.default.url} alt={song.snippet.title} />
+            </Link>
           </li>
         ))}
       </ul>

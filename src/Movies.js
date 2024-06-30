@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Movies.css';
 
-const Movies = () => {
+const Movies = ({ truncateTitle }) => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,8 +42,10 @@ const Movies = () => {
       <ul className="movies-list">
         {movies.map((movie) => (
           <li key={movie.id.videoId} className="movie-item">
-            <h3 className="movie-title">{movie.snippet.title}</h3>
-            <img src={movie.snippet.thumbnails.default.url} alt={movie.snippet.title} />
+            <Link to={`/video/${movie.id.videoId}`}>
+              <h3 className="movie-title">{truncateTitle(movie.snippet.title, 8)}</h3>
+              <img src={movie.snippet.thumbnails.default.url} alt={movie.snippet.title} />
+            </Link>
           </li>
         ))}
       </ul>
