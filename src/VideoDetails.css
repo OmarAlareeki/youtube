@@ -1,0 +1,30 @@
+.video-details {
+    padding: 20px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .video-details h2 {
+    margin-top: 0;
+  }
+  
+  .video-player {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .video-info {
+    margin-top: 20px;
+  }
+  
+  .video-info p {
+    margin: 10px 0;
+  }
+  
+  .video-info strong {
+    display: block;
+    margin-bottom: 5px;
+  }
+  

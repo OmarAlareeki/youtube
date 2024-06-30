@@ -1,0 +1,44 @@
+/* Library.css */
+
+.library {
+    padding: 20px;
+  }
+  
+  .library h2 {
+    margin-bottom: 20px;
+  }
+  
+  .library ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .library li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .library li a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .library img {
+    width: 80px;
+    height: 45px;
+    margin-right: 10px;
+    border-radius: 4px;
+  }
+  
+  .library h3 {
+    font-size: 14px;
+    margin: 0;
+  }
+  
