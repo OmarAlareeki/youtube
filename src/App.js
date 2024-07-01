@@ -11,8 +11,6 @@ import './App.css';
 
 const App = () => {
   const [homeVideoHistory, setHomeVideoHistory] = useState([]);
-  const [moviesVideoHistory, setMoviesVideoHistory] = useState([]);
-  const [songsVideoHistory, setSongsVideoHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,7 +36,6 @@ const App = () => {
           q: searchTerm,
         },
       });
-      // Assuming the search results are for the Home page, update homeVideoHistory
       setHomeVideoHistory((prevHistory) => [...prevHistory, ...response.data.items]);
       if (!categories.includes(searchTerm)) {
         setCategories([...categories, searchTerm]);
@@ -118,9 +115,9 @@ const App = () => {
               </div>
             </div>
           } />
-          <Route path="/movies" element={<Movies setMoviesVideoHistory={setMoviesVideoHistory} truncateTitle={truncateTitle} />} />
-          <Route path="/songs" element={<Songs setSongsVideoHistory={setSongsVideoHistory} truncateTitle={truncateTitle} />} />
-          <Route path="/library" element={<Library videoHistory={homeVideoHistory} truncateTitle={truncateTitle} />} />
+          <Route path="/movies" element={<Movies truncateTitle={truncateTitle} />} />
+          <Route path="/songs" element={<Songs truncateTitle={truncateTitle} />} />
+          <Route path="/library" element={<Library truncateTitle={truncateTitle} />} />
           <Route path="/video/:videoId" element={<VideoDetails />} />
           {categories.map((category, index) => (
             <Route
