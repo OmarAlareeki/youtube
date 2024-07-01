@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import './VideoDetails.css';
+import { db } from './firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from './firebase';
 
 const VideoDetails = () => {
   const { videoId } = useParams();
   const [video, setVideo] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
     const fetchVideoDetails = async () => {
-      setLoading(true);
-      setError(null);
       try {
         const response = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
           params: {
@@ -22,42 +22,37 @@ const VideoDetails = () => {
           },
         });
         setVideo(response.data.items[0]);
+
+        // Save video to Firestore
+        if (user) {
+          await setDoc(doc(db, 'users', user.uid, 'videoHistory', videoId), {
+            videoId,
+            snippet: response.data.items[0].snippet,
+            timestamp: new Date(),
+          });
+        }
       } catch (err) {
-        setError('Failed to fetch video details. Please try again.');
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch video details', err);
       }
     };
 
     fetchVideoDetails();
-  }, [videoId]);
+  }, [videoId, user]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message">{error}</div>;
-  }
-
-  if (!video) {
-    return <div>No video details found.</div>;
-  }
+  if (!video) return <p>Loading...</p>;
 
   return (
-    <div className="video-details">
-      <h2>{video.snippet.title}</h2>
+    <div>
+      <h1>{video.snippet.title}</h1>
       <iframe
-        title={video.snippet.title}
         width="560"
         height="315"
-        src={`https://www.youtube.com/embed/${video.id}`}
+        src={`https://www.youtube.com/embed/${videoId}`}
         frameBorder="0"
         allowFullScreen
+        title={video.snippet.title}
       ></iframe>
       <p>{video.snippet.description}</p>
-      <p>View count: {video.statistics.viewCount}</p>
-      <p>Likes: {video.statistics.likeCount}</p>
     </div>
   );
 };
