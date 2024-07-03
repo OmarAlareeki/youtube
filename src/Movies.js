@@ -34,6 +34,8 @@ const Movies = ({ truncateTitle }) => {
     fetchMovies();
   }, []);
 
+  
+
   return (
     <div className="movies">
       <h2>Trending Movies</h2>
