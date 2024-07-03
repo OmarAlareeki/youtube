@@ -101,7 +101,7 @@ nav a {
 }
 
 .video-title, .movie-title, .song-title {
-  font-size: 16px;
+  font-size: 10px;
   margin: 10px 0;
 }
 
@@ -113,3 +113,101 @@ nav a {
 .error-message {
   color: red;
 }
+
+.dark-mode {
+  background-color: #333;
+  color: #fff;
+}
+
+.light-mode {
+  background-color: #fff;
+  color: #333;
+}
+
+/* App.css */
+.app {
+  font-family: Arial, sans-serif;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #282c34;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.nav {
+  display: flex;
+  list-style: none;
+  gap: 10px;
+}
+
+.nav li {
+  margin-right: 10px;
+}
+
+.search-form {
+  display: flex;
+  gap: 5px;
+}
+
+.search-input {
+  padding: 5px;
+}
+
+.search-button {
+  padding: 5px;
+}
+
+.video-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.video-item {
+  width: 200px;
+}
+
+.video-title {
+  font-size: 16px;
+}
+
+.dark-mode {
+  background-color: #121212;
+  color: #fff;
+}
+
+.light-mode {
+  background-color: #fff;
+  color: #000;
+}
+
+.dark-mode-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.dark-mode-toggle label {
+  display: flex;
+  align-items: center;
+}
+
+.dark-mode-toggle input {
+  margin-right: 5px;
+}
+
