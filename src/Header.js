@@ -1,47 +1,39 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from './firebase';
+import { Link, useNavigate } from 'react-router-dom';
+import './Header.css';
 
 const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm, handleSearch, darkMode }) => {
-  const handleLogin = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Error logging in: ", error);
-    }
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
   return (
-    <header className={`app-header ${darkMode ? 'dark-mode' : ''}`}>
-      <nav>
-        <ul>
-          {categories.map((category, index) => (
-            <li key={index}><Link to={`/${category.toLowerCase()}`}>{category}</Link></li>
-          ))}
-        </ul>
-      </nav>
-      <form className="search-form" onSubmit={handleSearch}>
+    <header className={`header ${darkMode ? 'dark-mode' : ''}`}>
+      <div className="logo">
+        <Link to="/">MyApp</Link>
+      </div>
+      <form onSubmit={handleSearch} className="search-form">
         <input
-          className="search-input"
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for videos"
+          placeholder="Search..."
         />
-        <button className="search-button" type="submit">Search</button>
+        <button type="submit">Search</button>
       </form>
-      <div className="user-info">
-        {user ? (
-          <img
-            src={user.photoURL}
-            alt={user.displayName}
-            className="user-avatar"
-            onClick={() => window.location.href = '/profile'}
-          />
-        ) : (
-          <button onClick={handleLogin}>Login</button>
-        )}
+      <div className="nav-links">
+        {categories.map((category, index) => (
+          <Link key={index} to={`/${category.toLowerCase()}`}>
+            {category}
+          </Link>
+        ))}
+      </div>
+      <div className="profile">
+        <button onClick={handleProfileClick}>
+          {user ? <img src={user.photoURL} alt="Avatar" className="avatar" /> : 'LOGIN'}
+        </button>
       </div>
     </header>
   );
