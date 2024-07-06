@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { fetchVideoStatistics } from './utils';
 
-const Movies = ({ truncateTitle }) => {
+const truncateTitle = (title, wordLimit) => {
+  const words = title.split(' ');
+  if (words.length > wordLimit) {
+    return words.slice(0, wordLimit).join(' ') + '...';
+  }
+  return title;
+};
+
+const Movies = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,7 +30,16 @@ const Movies = ({ truncateTitle }) => {
             type: 'video',
           },
         });
-        setVideos(response.data.items);
+
+        const videoIds = response.data.items.map(video => video.id.videoId);
+        const statistics = await fetchVideoStatistics(videoIds);
+
+        const videosWithStats = response.data.items.map(video => ({
+          ...video,
+          statistics: statistics.find(stat => stat.id === video.id.videoId)?.statistics,
+        }));
+
+        setVideos(videosWithStats);
       } catch (err) {
         setError('Failed to fetch videos. Please try again.');
       } finally {
@@ -43,6 +61,7 @@ const Movies = ({ truncateTitle }) => {
             <Link to={`/video/${video.id.videoId}`}>
               <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
               <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
+              <p className="video-views">{video.statistics ? `${video.statistics.viewCount} views` : 'No views'}</p>
             </Link>
           </div>
         ))}

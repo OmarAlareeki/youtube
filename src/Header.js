@@ -6,13 +6,13 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate('/profilepage');
   };
 
   return (
     <header className={`header ${darkMode ? 'dark-mode' : ''}`}>
       <div className="logo">
-        <Link to="/">MyApp</Link>
+        <Link to="/"><img src="/logo.png" width={100}/></Link>
       </div>
       <form onSubmit={handleSearch} className="search-form">
         <input

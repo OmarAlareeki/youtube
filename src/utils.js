@@ -1,7 +1,17 @@
-export const truncateTitle = (title, wordLimit) => {
-    const words = title.split(' ');
-    if (words.length > wordLimit) {
-      return words.slice(0, wordLimit).join(' ') + '...';
-    }
-    return title;
-  };
+import axios from 'axios';
+
+export const fetchVideoStatistics = async (videoIds) => {
+  try {
+    const response = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+      params: {
+        part: 'statistics',
+        id: videoIds.join(','),
+        key: process.env.REACT_APP_YOUTUBE_API_KEY,
+      },
+    });
+    return response.data.items;
+  } catch (err) {
+    console.error('Failed to fetch video statistics:', err);
+    return [];
+  }
+};
