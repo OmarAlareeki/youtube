@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-const Songs = ({ truncateTitle }) => {
+const Reels = ({ truncateTitle }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,7 +17,7 @@ const Songs = ({ truncateTitle }) => {
             part: 'snippet',
             maxResults: 20,
             key: process.env.REACT_APP_YOUTUBE_API_KEY,
-            q: 'trending songs',
+            q: 'trending reels',
             type: 'video',
           },
         });
@@ -34,7 +34,7 @@ const Songs = ({ truncateTitle }) => {
 
   return (
     <div>
-      <h1>Trending Songs</h1>
+      <h1>Trending Reels</h1>
       {loading && <p>Loading...</p>}
       {error && <p className="error-message">{error}</p>}
       <div className="video-list">
@@ -51,4 +51,4 @@ const Songs = ({ truncateTitle }) => {
   );
 };
 
-export default Songs;
+export default Reels;

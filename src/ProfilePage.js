@@ -1,20 +1,14 @@
-// Profile.js
-import React, { useEffect, useState } from 'react';
-import { auth, db } from './firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import React, { useEffect } from 'react';
+import { auth, googleProvider } from './firebase';
+import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
-const Profile = ({ user, darkMode, setDarkMode }) => {
+const ProfilePage = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
   const navigate = useNavigate();
 
-  const handleDarkModeToggle = async () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-
-    if (user) {
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, { darkMode: newDarkMode }, { merge: true });
-    }
+  const handleLogin = async () => {
+    await signInWithPopup(auth, googleProvider);
+    navigate('/profilepage');
   };
 
   const handleLogout = async () => {
@@ -24,21 +18,24 @@ const Profile = ({ user, darkMode, setDarkMode }) => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/');
+      navigate('/profilepage');
     }
   }, [user, navigate]);
+  console.log(user)
 
   return (
     <div className={`profile-page ${darkMode ? 'dark-mode' : ''}`}>
       <h1>Profile</h1>
-      {user && (
+      {user ? (
         <>
           <img src={user.photoURL} alt={user.displayName} className="profile-avatar" />
           <p>{user.displayName}</p>
           <p>{user.email}</p>
           <button onClick={handleLogout}>Sign Out</button>
           <div className="dark-mode-toggle">
-            <label htmlFor="darkModeToggle">Dark Mode</label>
+            <label htmlFor="darkModeToggle">
+              Dark Mode
+            </label>
             <input
               type="checkbox"
               id="darkModeToggle"
@@ -47,9 +44,11 @@ const Profile = ({ user, darkMode, setDarkMode }) => {
             />
           </div>
         </>
+      ) : (
+        <button onClick={handleLogin}>Login with Google</button>
       )}
     </div>
   );
 };
 
-export default Profile;
+export default ProfilePage;
