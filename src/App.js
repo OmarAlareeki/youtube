@@ -106,6 +106,17 @@ const App = () => {
     updateDarkModeInFirestore(newDarkMode);
   };
 
+  const formatViews = (views) => {
+    if (views >= 1000000000) {
+      return `${(views / 1000000000).toFixed(1)}B`;
+    } else if (views >= 1000000) {
+      return `${(views / 1000000).toFixed(1)}M`;
+    } else if (views >= 1000) {
+      return `${(views / 1000).toFixed(1)}K`;
+    }
+    return `${views}`;
+  };
+
   return (
     <Router>
       <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
@@ -128,14 +139,18 @@ const App = () => {
                   <div className="video-item" key={video.id}>
                     <Link to={`/video/${video.id}`}>
                       <h3 className="video-title">{video.snippet.title}</h3>
-                      <img src={video.snippet.thumbnails.medium.url} alt={video.snippet.title} />
+                      <img src={video.snippet.thumbnails.high.url} alt={video.snippet.title} />
                     </Link>
                     <p className="video-views">
-                      {video.statistics.viewCount || 0} views
+                      {formatViews(video.statistics.viewCount) || 0} views
                       <br />
-                      <div>
+                    </p>
+                    <div>
                       <Link 
-                      style={{display: "flex", flexDirection: "raw", justifyContent: "space-around", textDecoration: "none"}}
+                      style={{display: "flex",
+                              textDecoration: "none",
+                              justifyContent: "space-between",
+                              alignItems: "center"}}
                       to={`https://www.youtube.com/channel/${video.channelId}`}>
                         <img 
                         style={{width: "30px", borderRadius: "50%"}}
@@ -144,8 +159,6 @@ const App = () => {
                       </Link>
 
                       </div>
-                 
-                    </p>
                   </div>
                 ))}
               </div>
@@ -240,7 +253,7 @@ const CategoryPage = ({ category }) => {
           <div className="video-item" key={video.id}>
             <Link to={`/video/${video.id}`}>
               <h3 className="video-title">{video.snippet.title}</h3>
-              <img src={video.snippet.thumbnails.medium.url} alt={video.snippet.title} />
+              <img src={video.snippet.thumbnails.high.url} alt={video.snippet.title} />
             </Link>
             <p className="video-views">
               {video.statistics.viewCount || 0} views

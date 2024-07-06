@@ -3,12 +3,8 @@ import { auth, googleProvider } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
-const ProfilePage = ({ user, darkMode, setDarkMode }) => {
+const ProfilePage = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
   const navigate = useNavigate();
-
-  const handleDarkModeToggle = async () => {
-    setDarkMode(!darkMode);
-  };
 
   const handleLogin = async () => {
     await signInWithPopup(auth, googleProvider);
@@ -25,6 +21,7 @@ const ProfilePage = ({ user, darkMode, setDarkMode }) => {
       navigate('/profilepage');
     }
   }, [user, navigate]);
+  console.log(user)
 
   return (
     <div className={`profile-page ${darkMode ? 'dark-mode' : ''}`}>
