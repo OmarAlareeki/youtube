@@ -3,7 +3,7 @@ import { auth, googleProvider } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
-const ProfilePage = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
+const Profile = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -51,4 +51,4 @@ const ProfilePage = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
   );
 };
 
-export default ProfilePage;
+export default Profile;

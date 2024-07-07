@@ -11,7 +11,7 @@ const truncateTitle = (title, wordLimit) => {
   return title;
 };
 
-const Movies = () => {
+const Movies = ({videoList}) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -56,7 +56,7 @@ const Movies = () => {
       {loading && <p>Loading...</p>}
       {error && <p className="error-message">{error}</p>}
       <div className="video-list">
-        {videos.map((video) => (
+        {videoList.map((video) => (
           <div className="video-item" key={video.id.videoId}>
             <Link to={`/video/${video.id.videoId}`}>
               <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>

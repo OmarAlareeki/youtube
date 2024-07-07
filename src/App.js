@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { auth, googleProvider, db } from './firebase';
-import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { auth, onAuthStateChanged } from './firebase';
+import { googleProvider, db } from './firebase';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Movies from './Movies';
 import Songs from './Songs';
 import Library from './Library';
 import VideoDetails from './VideoDetails';
-import ProfilePage from './ProfilePage';
+import Profile from './Profile';
 import Header from './Header';
+import CategoryPage from './CategoryPage';
+import VideoItem from "./VideoItem";
 import './App.css';
 
 const App = () => {
-  const [homeVideoHistory, setHomeVideoHistory] = useState([]);
+  const [videoList, setVideoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -82,7 +84,7 @@ const App = () => {
         channelImage: channelData[video.snippet.channelId].thumbnails.default.url,
       }));
 
-      setHomeVideoHistory(videosWithStats);
+      setVideoList(videosWithStats);
       if (!categories.includes(searchTerm)) {
         setCategories([...categories, searchTerm]);
       }
@@ -135,7 +137,7 @@ const App = () => {
               <div className="video-list">
                 {loading && <p>Loading...</p>}
                 {error && <p className="error-message">{error}</p>}
-                {homeVideoHistory.map((video) => (
+                {videoList.map((video) => (
                   <div className="video-item" key={video.id}>
                     <Link to={`/video/${video.id}`}>
                       <h3 className="video-title">{video.snippet.title}</h3>
@@ -168,7 +170,8 @@ const App = () => {
           <Route path="/songs" element={<Songs />} />
           <Route path="/library" element={<Library />} />
           <Route path="/video/:videoId" element={<VideoDetails />} />
-          <Route path="/profilepage" element={<ProfilePage user={user} darkMode={darkMode} handleDarkModeToggle={handleDarkModeToggle} />} />
+          <Route path="/profile" element={<Profile user={user} darkMode={darkMode} handleDarkModeToggle={handleDarkModeToggle} />} />
+          <Route path="/search" element={<SearchResults videoList={videoList} />} />
           {categories.map((category, index) => (
             <Route
               key={index}
@@ -182,92 +185,12 @@ const App = () => {
   );
 };
 
-const CategoryPage = ({ category }) => {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchVideos = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-          params: {
-            part: 'snippet',
-            maxResults: 10,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-            q: category,
-          },
-        });
-
-        const videoIds = response.data.items.map(item => item.id.videoId).join(',');
-
-        const statsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-          params: {
-            part: 'statistics,snippet',
-            id: videoIds,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-          },
-        });
-
-        const channelIds = statsResponse.data.items.map(item => item.snippet.channelId).join(',');
-
-        const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
-          params: {
-            part: 'snippet',
-            id: channelIds,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-          },
-        });
-
-        const channelData = channelResponse.data.items.reduce((acc, channel) => {
-          acc[channel.id] = channel.snippet;
-          return acc;
-        }, {});
-
-        const videosWithStats = statsResponse.data.items.map(video => ({
-          ...video,
-          channelTitle: channelData[video.snippet.channelId].title,
-          channelId: video.snippet.channelId,
-          channelImage: channelData[video.snippet.channelId].thumbnails.default.url,
-        }));
-
-        setVideos(videosWithStats);
-      } catch (err) {
-        setError('Failed to fetch videos. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVideos();
-  }, [category]);
-
-  return (
-    <div>
-      {loading && <p>Loading...</p>}
-      {error && <p className="error-message">{error}</p>}
-      <div className="video-list">
-        {videos.map((video) => (
-          <div className="video-item" key={video.id}>
-            <Link to={`/video/${video.id}`}>
-              <h3 className="video-title">{video.snippet.title}</h3>
-              <img src={video.snippet.thumbnails.high.url} alt={video.snippet.title} />
-            </Link>
-            <p className="video-views">
-              {video.statistics.viewCount || 0} views
-              <br />
-              <Link to={`https://www.youtube.com/channel/${video.channelId}`}>
-                <img src={video.channelImage} className="channel-image" />
-                {video.channelTitle}
-              </Link>
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+const SearchResults = ({ videoList }) => (
+  <div className="video-list">
+    {videoList.map((video) => (
+      <VideoItem key={video.id} video={video} />
+    ))}
+  </div>
+);
 
 export default App;

@@ -9,12 +9,19 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
     navigate('/profilepage');
   };
 
+  const onSearchSubmit = (e) => {
+    e.preventDefault();
+    navigate('/search');
+    handleSearch(e);
+  };
+
   return (
     <header className={`header ${darkMode ? 'dark-mode' : ''}`}>
       <div className="logo">
         <Link to="/"><img src="/logo.png" width={100}/></Link>
       </div>
-      <form onSubmit={handleSearch} className="search-form">
+
+      <form onSubmit={onSearchSubmit} className="search-form">
         <input
           type="text"
           value={searchTerm}
