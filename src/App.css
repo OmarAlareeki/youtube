@@ -94,6 +94,7 @@ nav a {
   transition: transform 0.2s;
   width: 200px; /* Fixed width for consistency */
   text-align: left;
+  font-size: 12px;
 }
 
 .video-item:hover, .movie-item:hover, .song-item:hover {
@@ -101,7 +102,7 @@ nav a {
 }
 
 .video-title, .movie-title, .song-title {
-  font-size: 16px;
+  font-size: 10px;
   margin: 10px 0;
 }
 
@@ -113,3 +114,98 @@ nav a {
 .error-message {
   color: red;
 }
+/* App.css */
+.app {
+  font-family: Arial, sans-serif;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #282c34;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.nav {
+  display: flex;
+  list-style: none;
+  gap: 10px;
+}
+
+.nav li {
+  margin-right: 10px;
+}
+
+.search-form {
+  display: flex;
+  gap: 5px;
+}
+
+.search-input {
+  padding: 5px;
+}
+
+.search-button {
+  padding: 5px;
+}
+
+.video-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.video-item {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #191616;
+}
+
+.video-title {
+  font-size: 12px;
+}
+.video-item > a,p,div > a {
+  text-decoration: none;
+  color: #535050
+}
+
+.dark-mode, html {
+  background-color: #121212;
+  color: #303030;
+}
+
+.light-mode {
+  background-color: #1e1e1e;
+  color: #000;
+}
+
+.dark-mode-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.dark-mode-toggle label {
+  display: flex;
+  align-items: center;
+}
+
+.dark-mode-toggle input {
+  margin-right: 5px;
+}
+

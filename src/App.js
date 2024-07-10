@@ -1,129 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { auth, googleProvider } from './firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { auth, db, onAuthStateChanged } from './firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Movies from './Movies';
 import Songs from './Songs';
+import Sports from './Sports';
+import News from './News';
+import Trending from './Trending';
+import Education from './Education';
+import Reels from './Reels';
 import Library from './Library';
 import VideoDetails from './VideoDetails';
+import Profile from './Profile';
+import Header from './Header';
+import CategoryPage from './CategoryPage';
+import VideoItem from './VideoItem';
+import useInfiniteScroll from './useInfiniteScroll';
 import './App.css';
 
 const App = () => {
-  const [homeVideoHistory, setHomeVideoHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [categories, setCategories] = useState(['Sports', 'News', 'Trending', 'Education', 'Reels']);
+  const [darkMode, setDarkMode] = useState(false);
+  const [categories, setCategories] = useState(['Home', 'Movies', 'Songs', 'Library', 'Sports', 'News', 'Trending', 'Education', 'Reels']);
+  const apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
+  const fetchUrl = 'https://www.googleapis.com/youtube/v3/search';
+
+  const { videoList, loading, error, fetchVideos } = useInfiniteScroll(searchTerm, fetchUrl, apiKey);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user);
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setDarkMode(docSnap.data().darkMode);
+        }
+      } else {
+        setUser(null);
+      }
     });
   }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-        params: {
-          part: 'snippet',
-          maxResults: 10,
-          key: process.env.REACT_APP_YOUTUBE_API_KEY,
-          q: searchTerm,
-        },
-      });
-      setHomeVideoHistory((prevHistory) => [...prevHistory, ...response.data.items]);
-      if (!categories.includes(searchTerm)) {
-        setCategories([...categories, searchTerm]);
-      }
-    } catch (err) {
-      setError('Failed to fetch videos. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    await fetchVideos();
   };
 
-  const handleLoginLogout = () => {
+  const updateDarkModeInFirestore = async (newDarkMode) => {
     if (user) {
-      signOut(auth);
-    } else {
-      signInWithPopup(auth, googleProvider);
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, { darkMode: newDarkMode }, { merge: true });
     }
   };
 
-  const truncateTitle = (title, wordLimit) => {
-    const words = title.split(' ');
-    if (words.length > wordLimit) {
-      return words.slice(0, wordLimit).join(' ') + '...';
-    }
-    return title;
+  const handleDarkModeToggle = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    updateDarkModeInFirestore(newDarkMode);
   };
 
   return (
     <Router>
-      <div className="app">
-        <header className="app-header">
-          <img src="/logo.png" alt="App Logo" className="app-logo" />
-          <nav>
-            <ul>
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/movies">Movies</Link></li>
-              <li><Link to="/songs">Songs</Link></li>
-              {categories.map((category, index) => (
-                <li key={index}><Link to={`/${category.toLowerCase()}`}>{category}</Link></li>
-              ))}
-              <li><Link to="/library">Library</Link></li>
-            </ul>
-          </nav>
-          <div className="user-info">
-            <img
-              src={user ? user.photoURL : '/default-avatar.png'}
-              alt={user ? user.displayName : 'Login'}
-              className="user-avatar"
-              onClick={handleLoginLogout}
-            />
-          </div>
-        </header>
+      <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
+        <Header
+          user={user}
+          categories={categories}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          handleSearch={handleSearch}
+          darkMode={darkMode}
+          handleDarkModeToggle={handleDarkModeToggle}
+        />
         <Routes>
           <Route path="/" element={
             <div>
-              <form className="search-form" onSubmit={handleSearch}>
-                <input
-                  className="search-input"
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search for videos"
-                />
-                <button className="search-button" type="submit">Search</button>
-              </form>
               <div className="video-list">
                 {loading && <p>Loading...</p>}
                 {error && <p className="error-message">{error}</p>}
-                {homeVideoHistory.map((video) => (
-                  <div className="video-item" key={video.id.videoId}>
-                    <Link to={`/video/${video.id.videoId}`}>
-                      <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
-                      <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-                    </Link>
+                {videoList.map((video) => (
+                  <div className="video-item" key={video.id}>
+                    <VideoItem video={video} />
                   </div>
                 ))}
               </div>
             </div>
           } />
-          <Route path="/movies" element={<Movies truncateTitle={truncateTitle} />} />
-          <Route path="/songs" element={<Songs truncateTitle={truncateTitle} />} />
-          <Route path="/library" element={<Library truncateTitle={truncateTitle} />} />
+          <Route path="/movies" element={<Movies useInfiniteScroll={useInfiniteScroll}/>} />
+          <Route path="/songs" element={<Songs />} />
+          <Route path="/sports" element={<Sports />} />
+          <Route path="/library" element={<Library />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/trending" element={<Trending />} />
+          <Route path="/education" element={<Education />} />
+          <Route path="/reels" element={<Reels />} />
           <Route path="/video/:videoId" element={<VideoDetails />} />
+          <Route path="/profile" element={<Profile user={user} darkMode={darkMode} handleDarkModeToggle={handleDarkModeToggle} />} />
+          <Route path="/search" element={<SearchResults videoList={videoList} />} />
           {categories.map((category, index) => (
             <Route
               key={index}
               path={`/${category.toLowerCase()}`}
-              element={<CategoryPage category={category} truncateTitle={truncateTitle} />}
+              element={<CategoryPage category={category} />}
             />
           ))}
         </Routes>
@@ -132,51 +111,12 @@ const App = () => {
   );
 };
 
-const CategoryPage = ({ category, truncateTitle }) => {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchVideos = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-          params: {
-            part: 'snippet',
-            maxResults: 10,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-            q: category,
-          },
-        });
-        setVideos(response.data.items);
-      } catch (err) {
-        setError('Failed to fetch videos. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVideos();
-  }, [category]);
-
-  return (
-    <div>
-      {loading && <p>Loading...</p>}
-      {error && <p className="error-message">{error}</p>}
-      <div className="video-list">
-        {videos.map((video) => (
-          <div className="video-item" key={video.id.videoId}>
-            <Link to={`/video/${video.id.videoId}`}>
-              <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
-              <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+const SearchResults = ({ videoList }) => (
+  <div className="video-list">
+    {videoList.map((video) => (
+      <VideoItem key={video.id} video={video} />
+    ))}
+  </div>
+);
 
 export default App;

@@ -3,8 +3,8 @@ import VideoItem from './VideoItem';
 import './Movies.css';
 import useInfiniteScroll from './useInfiniteScroll';
 
-const Movies = () => {
-  const searchTerm = 'trending movies';
+const Reels = () => {
+  const searchTerm = 'trending reels';
   const apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
   const fetchUrl = 'https://www.googleapis.com/youtube/v3/search';
 
@@ -23,4 +23,4 @@ const Movies = () => {
   );
 };
 
-export default Movies;
+export default Reels;
