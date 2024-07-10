@@ -6,7 +6,7 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    navigate('/profilepage');
+    navigate('/profile');
   };
 
   const onSearchSubmit = (e) => {

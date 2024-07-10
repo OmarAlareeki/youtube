@@ -1,39 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import './VideoItem.css'; // Create this CSS file for styling
 
 const VideoItem = ({ video }) => {
-  const truncateTitle = (title, wordLimit) => {
-    const words = title.split(' ');
-    if (words.length > wordLimit) {
-      return words.slice(0, wordLimit).join(' ') + '...';
-    }
-    return title;
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
   };
 
   const formatViews = (views) => {
-    if (views >= 1000000000) {
-      return `${(views / 1000000000).toFixed(1)}B`;
-    } else if (views >= 1000000) {
-      return `${(views / 1000000).toFixed(1)}M`;
-    } else if (views >= 1000) {
-      return `${(views / 1000).toFixed(1)}K`;
-    }
+    if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(0)}B`;
+    if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(0)}M`;
+    if (views >= 1_000) return `${(views / 1_000).toFixed(0)}K`;
     return `${views}`;
   };
 
   return (
-    <div className="video-item">
+    <div
+      className="video-item"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <Link to={`/video/${video.id}`}>
-        <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
-        <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-        <div className="video-views">
-          {formatViews(video.statistics.viewCount || 0)}
-          <Link to={`/channel/${video.channelId}`}>
-            <img src={video.channelImage} alt={video.channelTitle} className="channel-image" />
-            {video.channelTitle}
-          </Link>
-        </div>
+        <h3 className="video-title">{video.snippet.title}</h3>
+        <img
+          src={isHovered ? `https://img.youtube.com/vi/${video.id}/mqdefault.jpg` : video.snippet.thumbnails.high.url}
+          alt={video.snippet.title}
+        />
       </Link>
+      <p className="video-views">
+        {formatViews(video.statistics.viewCount) || 0} views
+        <br />
+      </p>
+      <div>
+        <Link
+          style={{
+            display: 'flex',
+            textDecoration: 'none',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+          to={`https://www.youtube.com/channel/${video.channelId}`}
+        >
+          <img
+            style={{ width: '30px', borderRadius: '50%' }}
+            src={video.channelImage}
+            alt={video.channelTitle}
+            className="channel-image"
+          />
+          {video.channelTitle}
+        </Link>
+      </div>
     </div>
   );
 };
