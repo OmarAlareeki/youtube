@@ -9,11 +9,12 @@ const useInfiniteScroll = (searchTerm, fetchUrl, apiKey) => {
 
   const fetchVideos = useCallback(async (pageToken = '') => {
     setLoading(true);
+    setError(null);
     try {
       const searchResponse = await axios.get(fetchUrl, {
         params: {
           part: 'snippet',
-          maxResults: 30,
+          maxResults: 10,
           key: apiKey,
           q: searchTerm,
           pageToken: pageToken,
@@ -60,6 +61,10 @@ const useInfiniteScroll = (searchTerm, fetchUrl, apiKey) => {
       setLoading(false);
     }
   }, [searchTerm, fetchUrl, apiKey]);
+
+  useEffect(() => {
+    fetchVideos();
+  }, [fetchVideos]);
 
   useEffect(() => {
     const handleScroll = async () => {
