@@ -1,70 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import VideoItem from './VideoItem';
 import './Movies.css';
+import useInfiniteScroll from './useInfiniteScroll';
 
 const Education = () => {
-  const [videoList, setVideoList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const searchTerm = 'learning videos';
+  const apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
+  const fetchUrl = 'https://www.googleapis.com/youtube/v3/search';
 
-  useEffect(() => {
-    const fetchMovieVideos = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-          params: {
-            part: 'snippet',
-            maxResults: 30,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-            q: 'learning videos',
-          },
-        });
-
-        const videoIds = searchResponse.data.items.map(item => item.id.videoId).join(',');
-
-        const statsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-          params: {
-            part: 'statistics,snippet',
-            id: videoIds,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-          },
-        });
-
-        const channelIds = statsResponse.data.items.map(item => item.snippet.channelId).join(',');
-
-        const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
-          params: {
-            part: 'snippet',
-            id: channelIds,
-            key: process.env.REACT_APP_YOUTUBE_API_KEY,
-          },
-        });
-
-        const channelData = channelResponse.data.items.reduce((acc, channel) => {
-          acc[channel.id] = channel.snippet;
-          return acc;
-        }, {});
-
-        const videosWithStats = statsResponse.data.items.map(video => ({
-          ...video,
-          channelTitle: channelData[video.snippet.channelId].title,
-          channelId: video.snippet.channelId,
-          channelImage: channelData[video.snippet.channelId].thumbnails.default.url,
-        }));
-
-        setVideoList(videosWithStats);
-      } catch (err) {
-        setError('Failed to fetch movie videos. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovieVideos();
-  }, []);
+  const { videoList, loading, error } = useInfiniteScroll(searchTerm, fetchUrl, apiKey);
 
   return (
     <div className="movies">
