@@ -3,7 +3,7 @@ import axios from 'axios';
 import VideoItem from './VideoItem';
 import './Movies.css';
 
-const Movies = () => {
+const Sports = () => {
   const [videoList, setVideoList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,7 +19,7 @@ const Movies = () => {
             part: 'snippet',
             maxResults: 30,
             key: process.env.REACT_APP_YOUTUBE_API_KEY,
-            q: 'trending movies',
+            q: 'trending sports',
           },
         });
 
@@ -79,4 +79,4 @@ const Movies = () => {
   );
 };
 
-export default Movies;
+export default Sports;

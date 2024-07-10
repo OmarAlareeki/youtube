@@ -6,7 +6,13 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    navigate('/profilepage');
+    navigate('/profile');
+  };
+
+  const onSearchSubmit = (e) => {
+    e.preventDefault();
+    navigate('/search');
+    handleSearch(e);
   };
 
   return (
@@ -14,7 +20,8 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
       <div className="logo">
         <Link to="/"><img src="/logo.png" width={100}/></Link>
       </div>
-      <form onSubmit={handleSearch} className="search-form">
+
+      <form onSubmit={onSearchSubmit} className="search-form">
         <input
           type="text"
           value={searchTerm}

@@ -1,50 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import VideoItem from './VideoItem';
+import './Movies.css';
 
-const Reels = ({ truncateTitle }) => {
-  const [videos, setVideos] = useState([]);
+const Reels = () => {
+  const [videoList, setVideoList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchMovieVideos = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+        const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
           params: {
             part: 'snippet',
-            maxResults: 20,
+            maxResults: 30,
             key: process.env.REACT_APP_YOUTUBE_API_KEY,
             q: 'trending reels',
-            type: 'video',
           },
         });
-        setVideos(response.data.items);
+
+        const videoIds = searchResponse.data.items.map(item => item.id.videoId).join(',');
+
+        const statsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+          params: {
+            part: 'statistics,snippet',
+            id: videoIds,
+            key: process.env.REACT_APP_YOUTUBE_API_KEY,
+          },
+        });
+
+        const channelIds = statsResponse.data.items.map(item => item.snippet.channelId).join(',');
+
+        const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
+          params: {
+            part: 'snippet',
+            id: channelIds,
+            key: process.env.REACT_APP_YOUTUBE_API_KEY,
+          },
+        });
+
+        const channelData = channelResponse.data.items.reduce((acc, channel) => {
+          acc[channel.id] = channel.snippet;
+          return acc;
+        }, {});
+
+        const videosWithStats = statsResponse.data.items.map(video => ({
+          ...video,
+          channelTitle: channelData[video.snippet.channelId].title,
+          channelId: video.snippet.channelId,
+          channelImage: channelData[video.snippet.channelId].thumbnails.default.url,
+        }));
+
+        setVideoList(videosWithStats);
       } catch (err) {
-        setError('Failed to fetch videos. Please try again.');
+        setError('Failed to fetch movie videos. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVideos();
+    fetchMovieVideos();
   }, []);
 
   return (
-    <div>
-      <h1>Trending Reels</h1>
+    <div className="movies">
       {loading && <p>Loading...</p>}
       {error && <p className="error-message">{error}</p>}
       <div className="video-list">
-        {videos.map((video) => (
-          <div className="video-item" key={video.id.videoId}>
-            <Link to={`/video/${video.id.videoId}`}>
-              <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
-              <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-            </Link>
-          </div>
+        {videoList.map((video) => (
+          <VideoItem key={video.id} video={video} />
         ))}
       </div>
     </div>
