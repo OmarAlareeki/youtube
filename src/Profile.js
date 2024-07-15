@@ -8,7 +8,7 @@ const Profile = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
 
   const handleLogin = async () => {
     await signInWithPopup(auth, googleProvider);
-    navigate('/profilepage');
+    navigate('/profile');
   };
 
   const handleLogout = async () => {
@@ -18,7 +18,7 @@ const Profile = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/profilepage');
+      navigate('/profile');
     }
   }, [user, navigate]);
   console.log(user)
