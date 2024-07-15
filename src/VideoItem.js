@@ -45,7 +45,7 @@ const VideoItem = ({ video }) => {
             justifyContent: 'space-between',
             alignItems: 'center',
           }}
-          to={`https://www.youtube.com/channel/${video.channelId}`}
+          to={`/channel/${video.channelId}`} // Use your custom Channel Detail page route
         >
           <img
             style={{ width: '30px', borderRadius: '50%' }}

@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { auth, db, onAuthStateChanged } from './firebase';
+import axios from 'axios';
+import { auth, db, googleProvider, signOut, onAuthStateChanged } from './firebase';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Movies from './Movies';
 import Songs from './Songs';
-import Sports from './Sports';
-import News from './News';
-import Trending from './Trending';
-import Education from './Education';
-import Reels from './Reels';
+import Sports from "./Sports";
+import News from "./News";
+import Trending from "./Trending";
+import Education from "./Education";
+import Reels from "./Reels";
 import Library from './Library';
 import VideoDetails from './VideoDetails';
 import Profile from './Profile';
 import Header from './Header';
 import CategoryPage from './CategoryPage';
-import VideoItem from './VideoItem';
-import useInfiniteScroll from './useInfiniteScroll';
+import ChannelDetail from './ChannelDetail'; // Import the new ChannelDetail component
+import VideoItem from "./VideoItem";
 import './App.css';
 
 const App = () => {
+  const [videoList, setVideoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [categories, setCategories] = useState(['Home', 'Movies', 'Songs', 'Library', 'Sports', 'News', 'Trending', 'Education', 'Reels']);
-  const apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
-  const fetchUrl = 'https://www.googleapis.com/youtube/v3/search';
-
-  const { videoList, loading, error, fetchVideos } = useInfiniteScroll(searchTerm, fetchUrl, apiKey);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -45,7 +45,59 @@ const App = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    await fetchVideos();
+    setLoading(true);
+    setError(null);
+    try {
+      const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+        params: {
+          part: 'snippet',
+          maxResults: 30,
+          key: process.env.REACT_APP_YOUTUBE_API_KEY,
+          q: searchTerm,
+        },
+      });
+
+      const videoIds = searchResponse.data.items.map(item => item.id.videoId).join(',');
+
+      const statsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+        params: {
+          part: 'statistics,snippet',
+          id: videoIds,
+          key: process.env.REACT_APP_YOUTUBE_API_KEY,
+        },
+      });
+
+      const channelIds = statsResponse.data.items.map(item => item.snippet.channelId).join(',');
+
+      const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
+        params: {
+          part: 'snippet',
+          id: channelIds,
+          key: process.env.REACT_APP_YOUTUBE_API_KEY,
+        },
+      });
+
+      const channelData = channelResponse.data.items.reduce((acc, channel) => {
+        acc[channel.id] = channel.snippet;
+        return acc;
+      }, {});
+
+      const videosWithStats = statsResponse.data.items.map(video => ({
+        ...video,
+        channelTitle: channelData[video.snippet.channelId].title,
+        channelId: video.snippet.channelId,
+        channelImage: channelData[video.snippet.channelId].thumbnails.default.url,
+      }));
+
+      setVideoList(videosWithStats);
+      if (!categories.includes(searchTerm)) {
+        setCategories([...categories, searchTerm]);
+      }
+    } catch (err) {
+      setError('Failed to fetch videos. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateDarkModeInFirestore = async (newDarkMode) => {
@@ -61,6 +113,17 @@ const App = () => {
     updateDarkModeInFirestore(newDarkMode);
   };
 
+  const formatViews = (views) => {
+    if (views >= 1000000000) {
+      return `${(views / 1000000000).toFixed()}B`;
+    } else if (views >= 1000000) {
+      return `${(views / 1000000).toFixed()}M`;
+    } else if (views >= 1000) {
+      return `${(views / 1000).toFixed()}K`;
+    }
+    return `${views}`;
+  };
+
   return (
     <Router>
       <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
@@ -70,53 +133,32 @@ const App = () => {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           handleSearch={handleSearch}
-          darkMode={darkMode}
           handleDarkModeToggle={handleDarkModeToggle}
         />
         <Routes>
-          <Route path="/" element={
-            <div>
-              <div className="video-list">
-                {loading && <p>Loading...</p>}
-                {error && <p className="error-message">{error}</p>}
-                {videoList.map((video) => (
-                  <div className="video-item" key={video.id}>
-                    <VideoItem video={video} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          } />
-          <Route path="/movies" element={<Movies useInfiniteScroll={useInfiniteScroll}/>} />
+          <Route path="/" element={<CategoryPage title="Home" />} />
+          <Route path="/movies" element={<Movies />} />
           <Route path="/songs" element={<Songs />} />
-          <Route path="/sports" element={<Sports />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/sports" element={<Sports />} />
           <Route path="/news" element={<News />} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/education" element={<Education />} />
           <Route path="/reels" element={<Reels />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/video/:videoId" element={<VideoDetails />} />
-          <Route path="/profile" element={<Profile user={user} darkMode={darkMode} handleDarkModeToggle={handleDarkModeToggle} />} />
-          <Route path="/search" element={<SearchResults videoList={videoList} />} />
-          {categories.map((category, index) => (
-            <Route
-              key={index}
-              path={`/${category.toLowerCase()}`}
-              element={<CategoryPage category={category} />}
-            />
-          ))}
+          <Route path="/channel/:channelId" element={<ChannelDetail formatViews={formatViews}/>} /> {/* New Route */}
         </Routes>
+        <div className="video-list">
+          {loading && <p>Loading...</p>}
+          {error && <p className="error-message">{error}</p>}
+          {videoList.map((video) => (
+            <VideoItem key={video.id} video={video} />
+          ))}
+        </div>
       </div>
     </Router>
   );
 };
-
-const SearchResults = ({ videoList }) => (
-  <div className="video-list">
-    {videoList.map((video) => (
-      <VideoItem key={video.id} video={video} />
-    ))}
-  </div>
-);
 
 export default App;

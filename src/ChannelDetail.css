@@ -1,0 +1,30 @@
+.channel-detail {
+  padding: 20px;
+}
+
+.channel-header {
+  display: flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.channel-info {
+  flex: 1;
+}
+
+.video-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.video-item:hover {
+  transform: scale(1.05);
+}
+
+.error-message {
+  color: red;
+}
