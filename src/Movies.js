@@ -9,7 +9,7 @@ const Movies = () => {
   const fetchUrl = 'https://www.googleapis.com/youtube/v3/search';
 
   const { videoList, loading, error } = useInfiniteScroll(searchTerm, fetchUrl, apiKey);
-
+  console.log(videoList)
   return (
     <div className="movies">
       {loading && <p>Loading...</p>}

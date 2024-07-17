@@ -5,7 +5,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase';
 import { Link } from 'react-router-dom';
 
-const Library = ({ truncateTitle }) => {
+const Library = () => {
   const [videos, setVideos] = useState([]);
   const [user] = useAuthState(auth);
 
@@ -31,7 +31,7 @@ const Library = ({ truncateTitle }) => {
         {videos.map((video) => (
           <div className="video-item" key={video.videoId}>
             <Link to={`/video/${video.videoId}`}>
-              <h3 className="video-title">{truncateTitle(video.snippet.title, 8)}</h3>
+              <h3 className="video-title">{video.snippet.title}</h3>
               <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
             </Link>
           </div>
