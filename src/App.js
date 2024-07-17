@@ -42,6 +42,7 @@ const App = () => {
       }
     });
   }, []);
+  console.log(videoList)
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -145,7 +146,7 @@ const App = () => {
           <Route path="/trending" element={<Trending />} />
           <Route path="/education" element={<Education />} />
           <Route path="/reels" element={<Reels />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<Profile user={user} />} />
           <Route path="/video/:videoId" element={<VideoDetails />} />
           <Route path="/channel/:channelId" element={<ChannelDetail formatViews={formatViews}/>} /> {/* New Route */}
         </Routes>

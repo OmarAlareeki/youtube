@@ -20,6 +20,11 @@ const VideoItem = ({ video }) => {
     return `${views}`;
   };
 
+  const truncateTitle = (title) => {
+    const words = title.split(' ');
+    return words.length > 4 ? words.slice(0, 4).join(' ') + '...' : title;
+  };
+
   return (
     <div
       className="video-item"
@@ -27,7 +32,7 @@ const VideoItem = ({ video }) => {
       onMouseLeave={handleMouseLeave}
     >
       <Link to={`/video/${video.id}`}>
-        <h3 className="video-title">{video.snippet.title}</h3>
+        <h3 className="video-title">{truncateTitle(video.snippet.title)}</h3>
         <img
           src={isHovered ? `https://img.youtube.com/vi/${video.id}/mqdefault.jpg` : video.snippet.thumbnails.high.url}
           alt={video.snippet.title}
