@@ -17,7 +17,7 @@ const CategoryPage = ({ category, videoList }) => {
             part: 'snippet,statistics',
             chart: 'mostPopular',
             regionCode: 'US',
-            maxResults: 10,
+            maxResults: 30,
             videoCategoryId: getCategoryID(category),
             key: process.env.REACT_APP_YOUTUBE_API_KEY,
           },
