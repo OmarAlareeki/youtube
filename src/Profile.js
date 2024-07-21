@@ -3,7 +3,7 @@ import { auth, googleProvider } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
-const Profile = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
+const Profile = ({ user, darkMode, setDarkMode }) => {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -21,11 +21,13 @@ const Profile = ({ user, darkMode, setDarkMode, handleDarkModeToggle }) => {
       navigate('/profile');
     }
   }, [user, navigate]);
-  console.log(user)
+
+  const handleDarkModeToggle = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
     <div className={`profile-page ${darkMode ? 'dark-mode' : ''}`}>
-      <h1>Profile</h1>
       {user ? (
         <>
           <img src={user.photoURL} alt={user.displayName} className="profile-avatar" />

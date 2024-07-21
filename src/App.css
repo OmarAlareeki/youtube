@@ -186,7 +186,6 @@ nav a {
 }
 
 .dark-mode, html {
-  background-color: #121212;
   color: #303030;
 }
 
@@ -209,3 +208,49 @@ nav a {
   margin-right: 5px;
 }
 
+/* dark mode styling*/
+
+.profile-page {
+  text-align: center;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+}
+
+/* App.css */
+.app {
+  background-color: white;
+  color: black;
+}
+
+.app.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+
+.profile-page {
+  padding: 20px;
+}
+
+.dark-mode-toggle {
+  margin-top: 20px;
+}
+
+.dark-mode-toggle label {
+  margin-right: 10px;
+}
+
+/* App.css */
+.app {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.app.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+
+/* Additional styles for other components can go here */

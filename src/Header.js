@@ -18,7 +18,7 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
   return (
     <header className={`header ${darkMode ? 'dark-mode' : ''}`}>
       <div className="logo">
-        <Link to="/"><img src="/logo.png" width={100}/></Link>
+        <Link to="/"><img src="/logo.png" width={100} alt="Logo" /></Link>
       </div>
 
       <form onSubmit={onSearchSubmit} className="search-form">
