@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { auth, db, googleProvider, signOut, onAuthStateChanged } from './firebase';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { auth, db, googleProvider, onAuthStateChanged } from './firebase';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Movies from './Movies';
 import Songs from './Songs';
-import Sports from "./Sports";
-import News from "./News";
-import Trending from "./Trending";
-import Education from "./Education";
-import Reels from "./Reels";
+import Sports from './Sports';
+import News from './News';
+import Trending from './Trending';
+import Education from './Education';
+import Reels from './Reels';
 import Library from './Library';
 import VideoDetails from './VideoDetails';
 import Profile from './Profile';
 import Header from './Header';
 import CategoryPage from './CategoryPage';
-import ChannelDetail from './ChannelDetail'; // Import the new ChannelDetail component
-import VideoItem from "./VideoItem";
+import ChannelDetail from './ChannelDetail';
+import VideoItem from './VideoItem';
 import './App.css';
 
 const App = () => {
@@ -42,7 +42,6 @@ const App = () => {
       }
     });
   }, []);
-  console.log(videoList)
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -135,6 +134,7 @@ const App = () => {
           setSearchTerm={setSearchTerm}
           handleSearch={handleSearch}
           handleDarkModeToggle={handleDarkModeToggle}
+          darkMode={darkMode} // Pass darkMode prop to Header
         />
         <Routes>
           <Route path="/" element={<CategoryPage title="Home" />} />
@@ -146,9 +146,9 @@ const App = () => {
           <Route path="/trending" element={<Trending />} />
           <Route path="/education" element={<Education />} />
           <Route path="/reels" element={<Reels />} />
-          <Route path="/profile" element={<Profile user={user} />} />
+          <Route path="/profile" element={<Profile user={user} darkMode={darkMode} setDarkMode={setDarkMode} handleDarkModeToggle={handleDarkModeToggle} />} />
           <Route path="/video/:videoId" element={<VideoDetails />} />
-          <Route path="/channel/:channelId" element={<ChannelDetail formatViews={formatViews}/>} /> {/* New Route */}
+          <Route path="/channel/:channelId" element={<ChannelDetail formatViews={formatViews}/>} />
         </Routes>
         <div className="video-list">
           {loading && <p>Loading...</p>}
