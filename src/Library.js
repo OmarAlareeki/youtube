@@ -3,9 +3,10 @@ import { db } from './firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase';
-import { Link } from 'react-router-dom';
+import VideoItem from './VideoItem';
+import './Library.css';
 
-const Library = () => {
+const Library = ({ darkMode }) => {
   const [videos, setVideos] = useState([]);
   const [user] = useAuthState(auth);
 
@@ -25,16 +26,11 @@ const Library = () => {
   if (!user) return <p>Please log in to view your library.</p>;
 
   return (
-    <div>
+    <div className={`library ${darkMode ? 'dark-mode' : ''}`}>
       <h1>Library</h1>
       <div className="video-list">
         {videos.map((video) => (
-          <div className="video-item" key={video.videoId}>
-            <Link to={`/video/${video.videoId}`}>
-              <h3 className="video-title">{video.snippet.title}</h3>
-              <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} />
-            </Link>
-          </div>
+          <VideoItem key={video.videoId} video={video} />
         ))}
       </div>
     </div>

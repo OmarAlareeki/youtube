@@ -174,7 +174,7 @@ nav a {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #191616;
+  background: #ededed;
 }
 
 .video-title {
@@ -250,7 +250,7 @@ nav a {
 
 .app.dark-mode {
   background-color: #121212;
-  color: white;
+  color: #121212;
 }
 
 /* Additional styles for other components can go here */
