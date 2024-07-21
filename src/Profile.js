@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { auth, googleProvider } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import "./ProfilePage.css";
 
 const Profile = ({ user, darkMode, setDarkMode }) => {
   const navigate = useNavigate();
@@ -33,7 +34,6 @@ const Profile = ({ user, darkMode, setDarkMode }) => {
           <img src={user.photoURL} alt={user.displayName} className="profile-avatar" />
           <p>{user.displayName}</p>
           <p>{user.email}</p>
-          <button onClick={handleLogout}>Sign Out</button>
           <div className="dark-mode-toggle">
             <label htmlFor="darkModeToggle">
               Dark Mode
@@ -45,6 +45,15 @@ const Profile = ({ user, darkMode, setDarkMode }) => {
               onChange={handleDarkModeToggle}
             />
           </div>
+          <button 
+          style={{
+            marginTop: "20px",
+            padding: "10px",
+            background: "#d31919",
+            border: "none",
+            borderRadius: "10px",
+            color: "#121212"}}
+          onClick={handleLogout}>Sign Out</button>
         </>
       ) : (
         <button onClick={handleLogin}>Login with Google</button>
