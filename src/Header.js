@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm, handleSearch, darkMode }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
@@ -13,6 +14,10 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
     e.preventDefault();
     navigate('/search');
     handleSearch(e);
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
@@ -30,18 +35,32 @@ const Header = ({ user, handleLoginLogout, categories, searchTerm, setSearchTerm
         />
         <button type="submit">Search</button>
       </form>
-      <div className="nav-links">
+
+      <nav className={`nav-links ${menuOpen ? 'open' : ''}`}>
         {categories.map((category, index) => (
           <Link key={index} to={`/${category.toLowerCase()}`}>
             {category}
           </Link>
         ))}
-      </div>
-      <div className="profile">
-        <button onClick={handleProfileClick}>
+        {user && (
+          <div className="profile mobile-profile" onClick={handleProfileClick}>
+            <img src={user.photoURL} alt="Avatar" className="avatar" />
+          </div>
+        )}
+        {!user && (
+          <button className="login-btn mobile-profile" onClick={handleProfileClick}>LOGIN</button>
+        )}
+      </nav>
+
+      <div className="profile desktop-profile">
+        <button className="login-btn" onClick={handleProfileClick}>
           {user ? <img src={user.photoURL} alt="Avatar" className="avatar" /> : 'LOGIN'}
         </button>
       </div>
+
+      <button className="menu-toggle" onClick={toggleMenu}>
+        ☰
+      </button>
     </header>
   );
 };
