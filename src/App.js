@@ -25,7 +25,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [categories, setCategories] = useState(['Home', 'Movies', 'Songs', 'Library', 'Sports', 'News', 'Trending', 'Education', 'Reels']);
+  const [categories, setCategories] = useState(['All', 'Movies', 'Songs', 'Library', 'Sports', 'News', 'Trending', 'Education', 'Reels']);
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -137,7 +137,7 @@ const App = () => {
           darkMode={darkMode} // Pass darkMode prop to Header
         />
         <Routes>
-          <Route path="/" element={<CategoryPage title="Home" />} />
+          <Route path="/" element={<CategoryPage category="All" />} />
           <Route path="/movies" element={<Movies />} />
           <Route path="/songs" element={<Songs />} />
           <Route path="/library" element={<Library />} />
