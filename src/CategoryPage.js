@@ -58,8 +58,6 @@ const CategoryPage = ({ category, videoList }) => {
 
   const getCategoryID = (category) => {
     switch (category.toLowerCase()) {
-      case 'home':
-      return '0'; // Change with appropriate category ID
       case 'movies':
         return '1'; // Change with appropriate category ID
       case 'songs':
